@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -15,10 +15,13 @@
     </style>
 </head>
 <body>
+<section>
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <table border="1">
     <caption><h2>Meal list</h2></caption>
+    <a href="meals?action=create">Add meal</a>
+    <hr>
     <tr>
         <th>Date</th>
         <th>Description</th>
@@ -30,7 +33,10 @@
         <td>${fn:replace(meal.dateTime, 'T', ' ')}</td>
         <td>${meal.description}</td>
         <td>${meal.calories}</td>
+        <td><a href="meals?action=update&id=${meal.id}">Update</a></td>
+        <td><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
         </c:forEach>
 </table>
+</section>
 </body>
 </html>
