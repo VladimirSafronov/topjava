@@ -1,11 +1,13 @@
 package ru.javawebinar.topjava.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
@@ -18,23 +20,31 @@ public class MealService {
         this.repository = repository;
     }
 
-    public List<Meal> getAll() {
-        return new ArrayList<>(repository.getAll(SecurityUtil.authUserId()));
+    public List<Meal> getAll(int userId) {
+        return new ArrayList<>(repository.getAll(userId));
     }
 
-    public Meal get(int id) {
-        return checkNotFoundWithId(repository.get(id, SecurityUtil.authUserId()), id);
+    public Meal get(int id, int userId) {
+        return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
-    public void delete(int id) {
-        checkNotFoundWithId(repository.delete(id, SecurityUtil.authUserId()), id);
+    public void delete(int id, int userId) {
+        checkNotFoundWithId(repository.delete(id, userId), id);
     }
 
-    public Meal create(Meal meal) {
-        return repository.save(meal, SecurityUtil.authUserId());
+    public Meal create(Meal meal, int userId) {
+        return repository.save(meal, userId);
     }
 
-    public void update(Meal meal) {
-        checkNotFoundWithId(repository.save(meal, SecurityUtil.authUserId()), meal.getId());
+    public void update(Meal meal, int userId) {
+        checkNotFoundWithId(repository.save(meal, userId), meal.getId());
+    }
+
+    public List<Meal> getBetweenHalfOpen(@Nullable LocalDate startDate, @Nullable LocalDate endDate,
+        int userId) {
+        LocalDateTime start = startDate == null ? LocalDateTime.MIN : startDate.atStartOfDay();
+        LocalDateTime end = endDate == null ? LocalDateTime.MAX : endDate.plusDays(1)
+            .atStartOfDay();
+        return repository.getBetweenHalfOpen(start, end, userId);
     }
 }
