@@ -1,5 +1,11 @@
 package ru.javawebinar.topjava.web;
 
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import javax.servlet.ServletConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -19,14 +25,20 @@ import ru.javawebinar.topjava.web.meal.MealRestController;
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
 
+    private ConfigurableApplicationContext context;
     private MealRestController controller;
 
     @Override
-    public void init() {
-        try (ConfigurableApplicationContext context =
-            new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            controller = context.getBean(MealRestController.class);
-        }
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        context = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        controller = context.getBean(MealRestController.class);
+    }
+
+    @Override
+    public void destroy() {
+        context.close();
+        super.destroy();
     }
 
     @Override
@@ -62,6 +74,15 @@ public class MealServlet extends HttpServlet {
                         controller.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
+                break;
+            case "filter":
+                LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
+                LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
+                LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
+                LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
+                request.setAttribute("meals", controller.getBetweenHalfOpen(startDate,
+                    startTime, endDate, endTime));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":
             default:
