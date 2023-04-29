@@ -29,7 +29,15 @@
           p:password="${database.password}"/>
     </beans>
 
-    <beans profile="postgres, vds">
+    <beans profile="postgres">
+        <context:property-placeholder location="classpath:db/postgres.properties" system-properties-mode="OVERRIDE"/>
+    </beans>
+
+    <beans profile="vds">
+        <context:property-placeholder location="file:///#{systemEnvironment[TOPJAVA_ROOT]}/config/db.properties" system-properties-mode="OVERRIDE"/>
+    </beans>
+
+    <beans profile="postgres,vds">
         <!--
             For postgres driver logging
             It uses java.util.logging and logged via jul-to-slf4j bridge
@@ -38,7 +46,7 @@
         <bean class="org.springframework.beans.factory.config.MethodInvokingBean">
             <property name="staticMethod" value="org.slf4j.bridge.SLF4JBridgeHandler.install"/>
         </bean>
-        <context:property-placeholder location="classpath:db/postgres.properties" system-properties-mode="OVERRIDE"/>
+
         <bean id="dataSource"
           class="org.apache.tomcat.jdbc.pool.DataSource"
           p:driverClassName="org.postgresql.Driver"
@@ -56,7 +64,6 @@
           p:testOnConnect="true"
           p:testWhileIdle="true"/>
     </beans>
-
     <beans profile="tomcat">
         <jee:jndi-lookup id="dataSource" jndi-name="java:comp/env/jdbc/topjava"/>
         <context:property-placeholder location="classpath:db/tomcat.properties" system-properties-mode="OVERRIDE"/>
